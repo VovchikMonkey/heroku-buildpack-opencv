@@ -1,7 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # bin/compile BUILD_DIR CACHE_DIR ENV_DIR
-
-set -e
 
 arrow() {
   sed -u 's/^/-----> /'
@@ -22,10 +20,10 @@ PKG_VERSION="3.4.1"
 PKG_TARBALL="$S3_BASE_URL/opencv-$PKG_VERSION.tar.gz"
 PKG_ETAG=$(curl --fail --head "$PKG_TARBALL" -s | grep -Ei '^etag' | sed -r 's/^etag|[^a-zA-Z0-9]+//gi')
 
-VENDOR_PATH="/app/vendor/opencv"
-TARGET_PATH="/tmp/codon/vendor/opencv"
-CACHE_PATH="$CACHE_DIR/opencv_$PKG_ETAG"
-SLUG_PATH="$BUILD_DIR/vendor/opencv"
+ VENDOR_PATH="/app/vendor/opencv"
+ TARGET_PATH="/tmp/codon/vendor/opencv"
+  CACHE_PATH="$CACHE_DIR/opencv_$PKG_ETAG"
+   SLUG_PATH="$BUILD_DIR/vendor/opencv"
 PROFILE_PATH="$BUILD_DIR/.profile.d"
 
 echo "Installing OpenCV $PKG_VERSION" | arrow
@@ -48,6 +46,19 @@ fi
 # copy libs into slug
 mkdir -p                  "$SLUG_PATH"
 cp    -a "$TARGET_PATH"/* "$SLUG_PATH"
+
+# configure paths
+mkdir -p    "$PROFILE_PATH"
+cat <<EOF > "$PROFILE_PATH/opencv.sh"
+export LD_LIBRARY_PATH="$VENDOR_PATH/lib:\$LD_LIBRARY_PATH"
+export    LIBRARY_PATH="$VENDOR_PATH/lib:\$LIBRARY_PATH"
+export    INCLUDE_PATH="$VENDOR_PATH/include:\$INCLUDE_PATH"
+export           CPATH="$VENDOR_PATH/include:\$CPATH"
+export         CPPPATH="$VENDOR_PATH/include:\$CPPPATH"
+export PKG_CONFIG_PATH="$VENDOR_PATH/lib/pkgconfig:\$PKG_CONFIG_PATH"
+# builtin unset may be overridden to be no-op
+unset LIBRARY_PATH INCLUDE_PATH CPATH CPPPATH PKG_CONFIG_PATH
+EOF
 
 # propagate paths to subsequent buildpacks
 export    LIBRARY_PATH="$TARGET_PATH/lib:$LIBRARY_PATH"
