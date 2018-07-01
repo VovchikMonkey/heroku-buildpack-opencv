@@ -4,6 +4,7 @@
 cat <<EOF
 ---
 config_vars:
+  LIBRARY_PATH: "/app/vendor/opencv/lib:$LIBRARY_PATH"
   LD_LIBRARY_PATH: "/app/vendor/opencv/lib:$LD_LIBRARY_PATH"
   PKG_CONFIG_PATH: "/app/vendor/opencv/lib/pkgconfig:$PKG_CONFIG_PATH"
 EOF
