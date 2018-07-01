@@ -8,8 +8,11 @@ indent() {
   sed -u 's/^/       /'
 }
 
-    BUILD_DIR=$1
-    CACHE_DIR=$2
+# config
+VERSION="1.9.8"
+
+BUILD_DIR=$1
+CACHE_DIR=$2
 BUILDPACK_DIR=`cd $(dirname $0)/..; pwd`
 
 S3_BASE_URL="https://s3.us-east-2.amazonaws.com/monkey-heroku"
